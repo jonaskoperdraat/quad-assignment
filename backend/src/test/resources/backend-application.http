@@ -1,0 +1,28 @@
+### Get categories
+GET http://localhost:8080/categories
+
+### Get question
+GET http://localhost:8080/question
+Accept: application/json
+
+### Get question with filter
+GET http://localhost:8080/question?category=30&type=boolean&difficulty=hard
+
+> {%
+    client.test('successful response', () => {
+        client.assert(response.status === 200, "Response status is not 200");
+    })
+    client.global.set('questionId', response.body.id)
+%}
+
+### Check anser
+POST http://localhost:8080/check-answer
+Content-Type: application/json
+
+{
+  "questionId": "{{questionId}}",
+  "answer": "A motorboat"
+}
+
+### Reset session
+POST http://localhost:8080/session-reset

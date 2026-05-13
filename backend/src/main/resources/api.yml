@@ -1,0 +1,201 @@
+openapi: 3.1.0
+info:
+  title: Trivia
+  description: Api for serving and checking answers to trivia questions
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:8080'
+
+tags:
+  - Trivia
+
+paths:
+  /categories:
+    get:
+      operationId: getCategories
+      tags:
+        - Trivia
+      responses:
+        '200':
+          description: A list of all available categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/category'
+
+  /question:
+    get:
+      operationId: getQuestion
+      tags:
+        - Trivia
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/type'
+        - name: difficulty
+          in: query
+          schema:
+            $ref: '#/components/schemas/difficulty'
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/categoryId'
+        - $ref: '#/components/parameters/sessionCookie'
+
+      responses:
+        '200':
+          description: 'Successfully retrieved a question'
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                examples:
+                  - name: Session cookie
+                    value: session_cookie=6b4607b10bfc48106e6df9ab64cb59b66f334c02d904964862a8c1da5a95af5a; Path=/question; HttpOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - type
+                  - difficulty
+                  - category
+                  - question
+                properties:
+                  id:
+                    type: string
+                  type:
+                    $ref: '#/components/schemas/type'
+                  difficulty:
+                    $ref: '#/components/schemas/difficulty'
+                  category:
+                    type: string
+                  question:
+                    type: string
+                  answers:
+                    type: array
+                    items:
+                      type: string
+
+        '409':
+          description: |-
+            Unable to serve the request due to the session token being exhausted. Either change the filter parameters,
+            requesting other questions, or reset the session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              examples:
+                sessionTokenEmpty:
+                  description: Session token empty
+                  value:
+                    code: SESSION_TOKEN_EMPTY
+                    message: For the current session, there are no questions left matching the requested filter
+                    detail: Either change the filter, or reset the session token through the /reset-session endpoint
+
+  /check-answer:
+    post:
+      operationId: checkAnswer
+      tags:
+        - Trivia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questionId
+                - answer
+              properties:
+                questionId:
+                  type: string
+                answer:
+                  type: string
+
+      responses:
+        '200':
+          description: 'Successfully checked the answer'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - isCorrect
+                properties:
+                  isCorrect:
+                    type: boolean
+                  correctAnswer:
+                    type: string
+                    description: only provided if the given answer is incorrect.
+
+  /session-reset:
+    post:
+      operationId: sessionReset
+      tags:
+        - Trivia
+      parameters:
+        - $ref: '#/components/parameters/sessionCookie'
+      responses:
+        '204':
+          description: 'Successfully reset the session'
+
+components:
+  parameters:
+    sessionCookie:
+      name: session_cookie
+      in: cookie
+      schema:
+        type:
+          string
+    requiredSessionCookie:
+      name: session_cookie
+      in: cookie
+      required: true
+      schema:
+        type:
+          string
+  schemas:
+    type:
+      type: string
+      enum:
+        - multiple
+        - boolean
+
+    difficulty:
+      type: string
+      enum:
+        - easy
+        - medium
+        - hard
+
+    categoryId:
+      type: integer
+
+    category:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/categoryId'
+        name:
+          type: string
+
+    error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        detail:
+          type: string

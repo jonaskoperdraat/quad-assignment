@@ -1,0 +1,65 @@
+### retrieve trivia, generic request
+https://opentdb.com/api.php?amount=10&category=10&difficulty=medium&type=multiple
+
+### Lookup categories
+# This endpoint is exempt from rate limiting, making it suitable to query on application startup to retrieve a
+# list of available categories
+https://opentdb.com/api_category.php
+
+> {%
+     client.global.set('categoryIds', response.body.trivia_categories.map(cat => cat.id));
+%}
+
+### Lookup all categorie counts
+< {%
+    request.variables.set('catId', client.global.get('categoryIds'));
+%}
+https://opentdb.com/api_count.php?category={{catId}}
+
+### Lookup category count
+https://opentdb.com/api_count.php?category=24
+
+
+
+### Specify category
+# category: <category id: integer>
+https://opentdb.com/api.php?amount=5&category=10
+
+### Specify type
+# type: multiple | boolean
+https://opentdb.com/api.php?amount=10&type=funky
+
+### Specify difficulty
+# difficulty: easy | medium | hard
+https://opentdb.com/api.php?amount=10&difficulty=medium
+
+### Specify encoding
+# encode: urlLegacy | url3986 | base64
+https://opentdb.com/api.php?amount=10&encode=base64
+
+# Token management
+### request a token
+https://opentdb.com/api_token.php?command=request
+
+> {%
+    client.test('successful response', () => {
+        client.assert(response.status === 200, "Response status is not 200");
+    })
+    client.global.set('token', response.body.token)
+%}
+
+### use a token
+https://opentdb.com/api.php?amount=6&category=30&difficulty=hard&token={{token}}
+
+### reset the token
+https://opentdb.com/api_token.php?command=reset&amount=1&token={{token}}
+
+> {%
+    client.test('successful response', () => {
+        client.assert(response.status === 200, "Response status is not 200");
+    })
+    client.global.set('token', response.body.token)
+%}
+
+
+

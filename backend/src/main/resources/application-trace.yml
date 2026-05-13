@@ -1,0 +1,4 @@
+logging:
+  level:
+    team.quad.trivia: TRACE
+    org.apache.hc.client5.http.wire: TRACE

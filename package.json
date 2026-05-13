@@ -1,0 +1,23 @@
+{
+  "name": "quad-assignment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "go": "pnpm ci && pnpm start",
+    "install": "concurrently --kill-others-on-fail \"pnpm fe.install\" \"pnpm be.install\"",
+    "be.install": "cd backend && ./mvnw clean install",
+    "fe.install": "cd frontend && pnpm ci",
+    "start": "concurrently --kill-others-on-fail \"pnpm be.start\" \"pnpm fe.start\"",
+    "be.start": "cd backend && ./mvnw spring-boot:run",
+    "fe.start": "cd frontend && pnpm start"
+  },
+  "keywords": [],
+  "author": "Jonas Koperdraat",
+  "license": "ISC",
+  "packageManager": "pnpm@11.1.0",
+  "type": "module",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
