@@ -12,6 +12,9 @@ The application is split into two modules: backend and frontend.
 pnpm go
 ```
 
+**note:** this build is not platform independent. It has been tested on MacOs. For builds on Windows, some of the 
+commands in the various package.json files may need to be adjusted.
+
 When both backend and frontend have started, go to [http://localhost:4200](http://localhost:4200) to access the application.
 
 ### Requirements 
@@ -56,6 +59,9 @@ we will pose some additional requirements, constraining those details further, a
 
 * The user is not presented with the same question twice, unless the questions for the given filter have been depleted
   * In this case, the user will be informed of this, before resetting it's session.
+  * Optionally, we can give the user the option to change the filter without resetting the session.
+
+    This way, we're transparent to the user about the limited amount of questions.
 
 ## Design choices
 
